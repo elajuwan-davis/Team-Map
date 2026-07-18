@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floridian — Team Responsibility Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --obsidian:#153157;
+    --obsidian-soft:#1f4272;
+    --white:#FFFFFF;
+    --sky:#B6DAEA;
+    --concrete:#E6E7E7;
+    --ink-on-sky:#0d2038;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--white);
+    font-family:'Inter',sans-serif;
+    color:var(--obsidian);
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:1180px;margin:0 auto;padding:28px 24px 80px;}
+
+  /* ---------- header ---------- */
+  header{
+    position:relative;
+    background:var(--obsidian);
+    border-radius:14px;
+    padding:34px 32px 30px;
+    overflow:hidden;
+    margin-bottom:34px;
+  }
+  header svg.wave-bg{
+    position:absolute; inset:0; width:100%; height:100%;
+    opacity:0.5;
+  }
+  header .eyebrow{
+    position:relative;
+    font-family:'Archivo',sans-serif;
+    font-weight:700;
+    letter-spacing:.14em;
+    font-size:11.5px;
+    color:var(--sky);
+    text-transform:uppercase;
+    margin:0 0 10px;
+  }
+  header h1{
+    position:relative;
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.01em;
+    font-size:clamp(24px,4vw,34px);
+    color:var(--white);
+    margin:0 0 8px;
+  }
+  header p{
+    position:relative;
+    margin:0;
+    color:var(--concrete);
+    font-size:14.5px;
+    max-width:520px;
+    line-height:1.5;
+  }
+
+  /* ---------- chart ---------- */
+  .chart{
+    position:relative;
+    padding-top:6px;
+    margin-bottom:8px;
+  }
+  .hub-row{display:flex; justify-content:center; margin-bottom:6px;}
+  .hub{
+    position:relative;
+    z-index:2;
+    background:var(--obsidian);
+    color:var(--white);
+    border-radius:12px;
+    padding:14px 28px;
+    text-align:center;
+    cursor:pointer;
+    border:2px solid var(--obsidian);
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 2px 0 rgba(21,49,87,0.0);
+  }
+  .hub:hover{transform:translateY(-2px);}
+  .hub.selected{box-shadow:0 0 0 3px var(--sky);}
+  .hub .name{font-family:'Archivo',sans-serif; font-weight:800; font-size:16px; letter-spacing:.03em;}
+  .hub .role{font-size:11.5px; color:var(--sky); margin-top:2px;}
+
+  .connector-svg{
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:1;
+  }
+  .connector-svg path{
+    fill:none;
+    stroke:var(--sky);
+    stroke-width:2;
+    opacity:0.9;
+  }
+
+  .nodes{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:12px;
+    margin-top:52px;
+  }
+  .node{
+    background:var(--white);
+    border:2px solid var(--obsidian);
+    border-radius:12px;
+    padding:14px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .node:hover{transform:translateY(-3px);}
+  .node.selected{
+    background:var(--obsidian);
+    box-shadow:0 0 0 3px var(--sky);
+  }
+  .node .name{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    font-size:14.5px;
+    letter-spacing:.02em;
+    color:var(--obsidian);
+  }
+  .node.selected .name{color:var(--white);}
+  .node .role{
+    font-size:10.5px;
+    color:var(--obsidian-soft);
+    margin-top:4px;
+    line-height:1.35;
+  }
+  .node.selected .role{color:var(--sky);}
+
+  /* ---------- detail panel ---------- */
+  .detail{
+    margin-top:40px;
+    border:2px solid var(--obsidian);
+    border-radius:14px;
+    overflow:hidden;
+    min-height:220px;
+  }
+  .detail-head{
+    background:var(--obsidian);
+    color:var(--white);
+    padding:18px 24px;
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .detail-head .name{
+    font-family:'Archivo',sans-serif;
+    font-weight:800;
+    font-size:20px;
+    letter-spacing:.02em;
+  }
+  .detail-head .role{
+    font-size:13px;
+    color:var(--sky);
+  }
+  .detail-body{
+    background:var(--white);
+    padding:18px 24px 22px;
+  }
+  .placeholder{
+    padding:44px 24px;
+    text-align:center;
+    color:var(--obsidian-soft);
+    font-size:14.5px;
+  }
+  .item{
+    border-bottom:1px solid var(--concrete);
+  }
+  .item:last-child{border-bottom:none;}
+  .item summary{
+    list-style:none;
+    cursor:pointer;
+    padding:12px 4px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--obsidian);
+  }
+  .item summary::-webkit-details-marker{display:none;}
+  .item summary .chevron{
+    flex:0 0 auto;
+    width:16px; height:16px;
+    transition:transform .15s ease;
+    color:var(--obsidian-soft);
+  }
+  .item[open] summary .chevron{transform:rotate(90deg);}
+  .item .explain{
+    background:var(--concrete);
+    border-radius:8px;
+    padding:12px 14px;
+    margin:0 4px 14px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--obsidian);
+  }
+
+  footer.note{
+    margin-top:18px;
+    font-size:12px;
+    color:var(--obsidian-soft);
+    text-align:center;
+  }
+
+  @media (max-width: 860px){
+    .nodes{grid-template-columns:repeat(3,1fr);}
+    .connector-svg{display:none;}
+    .nodes{margin-top:16px;}
+  }
+  @media (max-width: 520px){
+    .nodes{grid-template-columns:repeat(2,1fr);}
+    .page{padding:18px 14px 60px;}
+    header{padding:26px 20px 24px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <svg class="wave-bg" viewBox="0 0 1180 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,120 C 220,60 340,160 560,100 C 780,40 900,140 1180,80 L1180,160 L0,160 Z" fill="#1f4272"/>
+      <path d="M0,140 C 220,90 340,170 560,130 C 780,80 900,160 1180,110 L1180,160 L0,160 Z" fill="#B6DAEA" opacity="0.18"/>
+    </svg>
+    <p class="eyebrow">Floridian · Internal</p>
+    <h1>Team Responsibility Map</h1>
+    <p>Tap any name to see their role broken down, and tap a responsibility to see what it actually means day to day.</p>
+  </header>
+
+  <div class="chart">
+    <div class="hub-row">
+      <div class="hub" id="hub-node" tabindex="0" role="button" aria-pressed="false">
+        <div class="name">ELAJUWAN</div>
+        <div class="role">CEO · Growth, Financial &amp; Legal</div>
+      </div>
+    </div>
+    <svg class="connector-svg" id="connectorSvg"></svg>
+    <div class="nodes" id="nodesRow"></div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="placeholder">Select a team member above to see their responsibilities explained.</div>
+  </div>
+
+  <footer class="note">Reporting structure: José, Eman, Fernando, Paul, and Miguel report to Elajuwan · Isiah coordinates in real time with Paul on-site.</footer>
+</div>
+
+<script>
+const team = [
+  {
+    id:'jean', name:'JOSÉ', pronounced:'', role:'Permitting, Fulfillment &amp; Budgeting',
+    items:[
+      {t:'Permitting: notarized docs, private provider + city submission', e:'Handles the paperwork required before a project can legally break ground — getting documents notarized, then routing them to either our private provider or the city, depending on the jurisdiction.'},
+      {t:'Order fulfillment — subs/vendors per price sheet', e:'Places and confirms material and subcontractor orders, checking every order against our approved price sheet before it goes out.'},
+      {t:'Project budgeting', e:"Tracks each project's actual spend against its budget so cost overruns get caught early, not after the fact."},
+      {t:'Project timeline management', e:'Owns the master schedule for each job, keeping every phase on pace to hit the promised completion date.'},
+      {t:'JobTread administrator (overall)', e:'Manages our JobTread project management system company-wide — user access, project setup, and data accuracy.'},
+    ]
+  },
+  {
+    id:'eman', name:'EMAN', pronounced:'AI Strategist', role:'IT &amp; Brand',
+    items:[
+      {t:'Builds in-house permitting/private provider portal', e:'Leading development of the internal software that will run our own private provider service in-house — plan review submissions and inspection scheduling.'},
+      {t:'Owns Slack help-request queue (automation, access)', e:'First point of contact when a team member needs IT help, software access, or an automation fix — submitted through a dedicated Slack channel.'},
+      {t:'Platform security &amp; access control', e:'Makes sure every employee has exactly the software access they need, no more and no less, and that client and company data stays protected.'},
+      {t:'IT/design work incl. website redesigns', e:'Handles broader IT projects and visual design work, including keeping floridianinc.com current.'},
+      {t:'Software stack: review, provisioning, budget', e:'Evaluates which tools in our software stack earn their keep, sets new hires up with the right accounts, and owns the software budget.'},
+      {t:'Marketing &amp; operational automation workflows', e:'Builds the behind-the-scenes automations that keep marketing and day-to-day operations running without manual busywork.'},
+      {t:'Brand strategy &amp; cohesion (signatures, LinkedIn, positioning)', e:"Keeps Floridian's brand consistent everywhere it shows up — email signatures, LinkedIn presence, and overall brand positioning."},
+    ]
+  },
+  {
+    id:'fernando', name:'FERNANDO', pronounced:'Business Development Rep', role:'',
+    items:[
+      {t:'Assigns designers to design needs', e:'Matches incoming design requests to the right designer based on scope and current workload.'},
+      {t:'Intake of all incoming leads', e:"First touchpoint for every new lead, making sure nothing falls through the cracks before it's handed off."},
+      {t:'Tracks deadlines: client/builder projects + pricing', e:'Keeps a running clock on every client and builder project deadline, plus pricing turnaround times.'},
+      {t:'Manages flyer, cold call &amp; text campaigns + budgets', e:'Runs our outbound flyer, cold-call, and text campaigns, and manages what we spend on them.'},
+      {t:'Owns marketing attribution (inbound/outbound)', e:"Tracks which marketing channel actually generated each lead — inbound or outbound — so we know what's working."},
+      {t:'Cross-functional with operations &amp; estimating', e:'Works closely with operations and estimating to keep pricing and project handoffs moving smoothly.'},
+      {t:'Estimates', e:'Prepares project estimates for prospective clients and builders.'},
+    ]
+  },
+  {
+    id:'paul', name:'PAUL', pronounced:'Operations', role:'Client &amp; Builder Relations',
+    items:[
+      {t:'Leads client/builder relationship communication', e:'The main point of contact for clients and builders once a project is underway — keeping them informed and confident in the process.'},
+      {t:'Job costing, AR/AP', e:'Tracks what each job actually costs to build (job costing), and manages money coming in from clients (accounts receivable) and going out to vendors (accounts payable).'},
+      {t:'Cross-functional coordination — reviews budgeting &amp; timelines company-wide; reports to Elajuwan', e:"Reviews budgets and schedules across every department, not just one project or one person's work, coordinates across teams to keep things aligned, and reports directly to Elajuwan."},
+      {t:'Leads in-house private provider services launch (Q1 target)', e:'Spearheading the move to bring plan review and inspections in-house as our own private provider company, targeted to launch by Q1.'},
+      {t:'Manages HOA applications', e:'Handles the paperwork and approvals required when a project falls inside a Homeowners Association.'},
+      {t:'Subcontractor selection &amp; quality control', e:"Chooses which subcontractors work on each project and checks their work meets Floridian's quality standard."},
+      {t:'Real-time coordination with Isiah', e:'Stays in constant contact with Isiah on-site so field issues get resolved the moment they come up.'},
+      {t:'Joins client project meetings', e:'Sits in on client meetings to represent operations and keep commitments aligned with what the field can deliver.'},
+      {t:'Manages client warranty issues', e:'Handles any post-completion warranty claims or concerns a client raises.'},
+    ]
+  },
+  {
+    id:'miguel', name:'MIGUEL', pronounced:'Designer / Drafter', role:'In-House Outdoor Living',
+    items:[
+      {t:'Owns all design deliverables', e:'Responsible for every design output that goes out to clients and builders, start to finish.'},
+      {t:'Plan set schematics', e:'Draws the technical plan sets used for permitting and construction.'},
+      {t:'Takeoff &amp; material quantities', e:"Calculates exact material quantities needed for a project from the plans (a \u201ctakeoff\u201d), which feeds directly into ordering and budgeting."},
+      {t:'Reports to the Growth team', e:"His work is directed and reviewed by the Growth team rather than through operations."},
+    ]
+  },
+  {
+    id:'isiah', name:'ISIAH', pronounced:'Field Supervisor', role:'US-Based',
+    items:[
+      {t:'Excavation oversight', e:'Oversees the digging and grading phase of every project.'},
+      {t:'Field communication/coordination with subs', e:'On-the-ground point of contact for every subcontractor working a site.'},
+      {t:'Fleet supervision', e:'Manages our vehicles and heavy equipment — upkeep, scheduling, and usage.'},
+      {t:'Material delivery', e:'Coordinates material drop-offs so the right supplies show up at the right time.'},
+      {t:'Backfilling', e:'Oversees backfilling — refilling excavated areas once underground work is complete.'},
+      {t:'Site cleanup &amp; cleanliness', e:'Makes sure every site is left clean and presentable, during construction and after.'},
+      {t:'On-site supervision', e:'General on-the-ground oversight of the crew and site conditions day to day.'},
+      {t:'Manages on-site signage', e:'Makes sure yard signage is placed and properly maintained at every project site.'},
+      {t:'On-site for gunite, tile, coping, pergola installation &amp; plaster', e:'Personally present for the highest-stakes phases of pool construction — shooting gunite, tile work, coping, pergola installation, and plaster — where mistakes are costly and hard to reverse.'},
+    ]
+  },
+];
+
+const nodesRow = document.getElementById('nodesRow');
+const detail = document.getElementById('detail');
+const hubNode = document.getElementById('hub-node');
+const svg = document.getElementById('connectorSvg');
+
+team.forEach(person=>{
+  const el = document.createElement('div');
+  el.className = 'node';
+  el.tabIndex = 0;
+  el.setAttribute('role','button');
+  el.dataset.id = person.id;
+  el.innerHTML = `<div class="name">${person.name}</div><div class="role">${person.pronounced}${person.role ? ' · '+person.role : ''}</div>`;
+  el.addEventListener('click', ()=>selectPerson(person.id));
+  el.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'||ev.key===' '){ev.preventDefault(); selectPerson(person.id);} });
+  nodesRow.appendChild(el);
+});
+
+function clearSelection(){
+  document.querySelectorAll('.node.selected').forEach(n=>n.classList.remove('selected'));
+  hubNode.classList.remove('selected');
+}
+
+function selectPerson(id){
+  clearSelection();
+  const nodeEl = document.querySelector(`.node[data-id="${id}"]`);
+  if(nodeEl) nodeEl.classList.add('selected');
+  const person = team.find(p=>p.id===id);
+  renderDetail(person);
+}
+
+hubNode.addEventListener('click', ()=>{
+  clearSelection();
+  hubNode.classList.add('selected');
+  detail.innerHTML = `
+    <div class="detail-head">
+      <span class="name">ELAJUWAN</span>
+      <span class="role">CEO · Growth, Financial &amp; Legal</span>
+    </div>
+    <div class="detail-body">
+      <details class="item">
+        <summary>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          <span>Growth — residential &amp; builder accounts</span>
+        </summary>
+        <div class="explain">Owns the growth strategy for both sides of the business — expanding residential client volume and builder account relationships alike.</div>
+      </details>
+      <details class="item">
+        <summary>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          <span>Growth — marketing</span>
+        </summary>
+        <div class="explain">Sets overall marketing direction and priorities that Fernando and Eman execute against day to day, as part of the broader growth strategy.</div>
+      </details>
+      <details class="item">
+        <summary>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          <span>Growth — private provider administration</span>
+        </summary>
+        <div class="explain">Oversees the administration of the in-house private provider business as a growth initiative, working alongside Paul who leads its launch.</div>
+      </details>
+      <details class="item">
+        <summary>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          <span>Financial oversight</span>
+        </summary>
+        <div class="explain">Final decision-maker on company financials — budgets, spend, and overall financial direction across every department.</div>
+      </details>
+      <details class="item">
+        <summary>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          <span>Legal oversight</span>
+        </summary>
+        <div class="explain">Owns legal matters for the company — contracts, entity structure, and risk — across both residential and builder work.</div>
+      </details>
+      <div class="item" style="border:none;">
+        <p style="font-size:13.5px; line-height:1.6; margin:10px 4px 4px; color:var(--obsidian-soft);">Every role on this map reports up to Elajuwan, directly or through Paul.</p>
+      </div>
+    </div>`;
+});
+hubNode.addEventListener('keydown', (ev)=>{ if(ev.key==='Enter'||ev.key===' '){ev.preventDefault(); hubNode.click();} });
+
+function renderDetail(person){
+  const itemsHtml = person.items.map(item=>`
+    <details class="item">
+      <summary>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        <span>${item.t}</span>
+      </summary>
+      <div class="explain">${item.e}</div>
+    </details>
+  `).join('');
+
+  detail.innerHTML = `
+    <div class="detail-head">
+      <span class="name">${person.name}</span>
+      <span class="role">${person.pronounced}${person.role ? ' · '+person.role : ''}</span>
+    </div>
+    <div class="detail-body">${itemsHtml}</div>
+  `;
+}
+
+/* ---------- connector lines (hub -> each node) ---------- */
+function drawConnectors(){
+  if(window.innerWidth <= 860){ svg.innerHTML=''; return; }
+  const chartRect = document.querySelector('.chart').getBoundingClientRect();
+  const hubRect = hubNode.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${chartRect.width} ${chartRect.height}`);
+  svg.innerHTML='';
+
+  const hx = hubRect.left + hubRect.width/2 - chartRect.left;
+  const hy = hubRect.bottom - chartRect.top;
+
+  document.querySelectorAll('.node').forEach(node=>{
+    const r = node.getBoundingClientRect();
+    const nx = r.left + r.width/2 - chartRect.left;
+    const ny = r.top - chartRect.top;
+    const midY = hy + (ny-hy)*0.55;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M ${hx} ${hy} C ${hx} ${midY}, ${nx} ${midY}, ${nx} ${ny}`);
+    svg.appendChild(path);
+  });
+}
+
+window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt=setTimeout(drawConnectors,120); });
+window.addEventListener('load', drawConnectors);
+setTimeout(drawConnectors, 60);
+</script>
+</body>
+</html>
